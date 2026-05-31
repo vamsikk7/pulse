@@ -1,0 +1,17 @@
+node_modules
+.next
+dist
+.env
+.env.local
+.env.*.local
+.DS_Store
+*.log
+.turbo
+coverage
+.vscode
+.idea
+samples/*.real.pdf
+mongo_data
+minio_data
+docs/*
+.env*

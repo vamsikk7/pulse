@@ -1,0 +1,25 @@
+FROM node:22-bookworm-slim
+
+WORKDIR /repo
+
+# System deps for native modules
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    python3 build-essential curl ca-certificates \
+  && rm -rf /var/lib/apt/lists/*
+
+# Pre-install via root package.json so npm workspaces resolve correctly.
+# We copy only the manifest files first to leverage the layer cache.
+COPY package.json package-lock.json* ./
+COPY tsconfig.base.json ./
+COPY packages/shared/package.json packages/shared/
+COPY apps/api/package.json apps/api/
+COPY apps/worker/package.json apps/worker/
+COPY apps/web/package.json apps/web/
+
+RUN npm install --no-audit --no-fund --include-workspace-root
+
+# Source mounted at runtime; this stays empty for dev.
+WORKDIR /repo/apps/api
+
+EXPOSE 4000
+CMD ["npx", "tsx", "watch", "src/index.ts"]
